@@ -1,0 +1,32 @@
+{
+  "name": "etl-replica",
+  "version": "1.0.0",
+  "description": "A simple project with communicating containers that share data ",
+  "main": "lib/main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VagelisMerziotis/docker-project.git"
+  },
+  "author": "Evangelos Merziotis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VagelisMerziotis/docker-project/issues"
+  },
+  "homepage": "https://github.com/VagelisMerziotis/docker-project#readme",
+  "dependencies": {
+    "@sentry/node": "^9.14.0",
+    "axios": "^1.9.0",
+    "date-fns": "^4.1.0",
+    "ksuid": "^3.0.0",
+    "pg": "^8.15.6",
+    "pino": "^9.6.0",
+    "sentry": "^0.1.2",
+    "yargs": "^17.7.2"
+  }
+}
