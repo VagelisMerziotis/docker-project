@@ -1,0 +1,6 @@
+# Account credentials
+service-acc.json
+
+# Environment variables
+.env
+
