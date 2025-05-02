@@ -1,0 +1,16 @@
+FROM python:3.9-slim-buster
+
+USER dev
+
+RUN mkdir /app
+WORKDIR /app
+
+RUN mkdir scripts
+
+RUN chmod +x /app/scripts
+COPY /lib/python/*  /scripts 
+COPY /lib/requirements.txt  /scripts
+RUN pip install --no-cache-dir -r /scripts/requirements.txt
+
+
+

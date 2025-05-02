@@ -9,6 +9,9 @@ service-acc.json
 # Node modules
 node_modules
 
+# Persistent data volumes
+db_data
+
 # Logs
 logs
 *.log
