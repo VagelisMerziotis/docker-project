@@ -1,13 +1,19 @@
+networks:
+  kafka-network:
+    driver: bridge
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     hostname: zookeeper
     container_name: zookeeper
     ports:
-      - 2181:3000 # Configure container port 3000 for development
+      - 2181:2181
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - kafka-network
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -16,51 +22,64 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - 9092:3000 # Configure container port 3000 for development
+      - 9092:9092
+      - 29092:29092
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    volumes:
-      - kafka_data:/var/lib/kafka/data
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    networks:
+      - kafka-network
 
   # nodejs_app:
   #   build:
-  #     context: ./nodejs
-  #     dockerfile: Dockerfile
-  #   hostname: nodejs_app
-  #   container_name: nodejs_app
+  #     dockerfile: node.Dockerfile
+  #   hostname: nodejs_puller
+  #   container_name: nodejs_puller
   #   depends_on:
   #     - kafka
   #     - database
   #   environment:
   #     KAFKA_BROKER: kafka:9092
   #     DATABASE_URL: "postgresql://myuser:mypassword@database:5432/mydb"
+  #     KAFKA_TOPIC: coin-market-data-BTC
   #   ports:
-  #     - 3000:3000 # Expose the Node.js app port (if needed)
+  #     - 3000:3000
+  #   networks:
+  #     - kafka-network
 
-  # database: # Using PostgreSQL as an example
-  #   image: postgres:13
-  #   hostname: database
-  #   container_name: database
-  #   environment:
-  #     POSTGRES_USER: myuser
-  #     POSTGRES_PASSWORD: mypassword
-  #     POSTGRES_DB: mydb
-  #   volumes:
-  #     - db_data:/var/lib/postgresql/data
+  postgres_database:
+    image: postgres:14-alpine
+    hostname: pg_db
+    container_name: pg_db
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: coin_db
+    ports:
+      - 5432:5432
+    networks:
+      - kafka-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
-  # python_producer:
-  #   build:
-  #     dockerfile: Dockerfile_python
-  #   hostname: python_producer
-  #   container_name: python_producer
-  #   depends_on:
-  #     - kafka
-  #   environment:
-  #     KAFKA_BROKER: kafka:9092
+  python_producer:
+    build:
+      dockerfile: python.Dockerfile
+    hostname: python_producer
+    container_name: python_producer
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER_URL: kafka:9092
+      COIN_MARKET_API_KEY: 1311c9f2-c735-401c-b6d0-cdf34236071d
+      URL: https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest
+      KAFKA_TOPIC: coin-market-data-BTC
+    networks:
+      - kafka-network
 
 volumes:
   db_data:
-  kafka_data:

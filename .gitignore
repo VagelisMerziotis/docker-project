@@ -1,5 +1,7 @@
 # Settings
 .vscode/
+.*
+
 # Account credentials
 service-acc.json
 
@@ -9,7 +11,7 @@ service-acc.json
 # Node modules
 node_modules
 
-# Persistent data volumes
+# Inital data for database
 db_data
 
 # Logs

@@ -1,28 +1,20 @@
-from kafka import KafkaProducer
-import json
 import time
+from datetime import datetime
+from utilities import draw_data, send_to_kafka
+import os
+from dotenv import load_dotenv
 
-KAFKA_BROKER = 'localhost:9092'
-KAFKA_TOPIC = 'my_test_topic'
+# Load environment variables from .env file
+load_dotenv()
 
-try:
-    producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BROKER,
-        value_serializer=lambda x: json.dumps(x).encode('utf-8')
-    )
-    print(f"Kafka producer connected to {KAFKA_BROKER}")
-except Exception as e:
-    print(f"Error connecting to Kafka: {e}")
-    exit()
+if __name__ == "__main__":
+    # Constants
+    KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
+    KAFKA_TOPIC = os.environ.get('KAFKA_TOPIC')
+    URL = os.environ.get('URL')
+    API_KEY = os.environ.get('COIN_MARKET_API_KEY')
 
-try:
-    for i in range(5):
-        message = {'count': i, 'timestamp': time.time()}
-        producer.send(KAFKA_TOPIC, value=message)
-        producer.flush()
-        print(f"Sent: {message}")
-        time.sleep(1)
-except KeyboardInterrupt:
-    print("Producer stopped.")
-finally:
-    producer.close()
+    while True:
+        data = draw_data(url=URL, api_key=API_KEY)
+        send_to_kafka(topic=KAFKA_TOPIC, data=data)
+        time.sleep(5)
