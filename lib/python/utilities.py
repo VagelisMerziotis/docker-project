@@ -60,13 +60,13 @@ def send_to_kafka(topic, data):
         value_serializer=lambda x: json.dumps(x).encode('utf-8'), 
         acks='all',  
         api_version=(7,9),
-        linger_ms=20 # Add linger
+        linger_ms=20 
     )
 
     try:
         producer.send(topic, value=data)
         producer.flush()
-        print(f"Successfully sent data to topic: {topic}")  # Add success message
+        print(f"Successfully sent data to topic: {topic}")  
     except NoBrokersAvailable as e:
         print(
             f"Error: Could not connect to Kafka broker at {KAFKA_BROKER_URL}.  Check network and broker status: {e}"

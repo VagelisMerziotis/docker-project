@@ -1,17 +1,16 @@
-networks:
-  kafka-network:
-    driver: bridge
-
+version: "3.8"
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.5.0
     hostname: zookeeper
     container_name: zookeeper
     ports:
-      - 2181:2181
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
     networks:
       - kafka-network
 
@@ -34,22 +33,27 @@ services:
     networks:
       - kafka-network
 
-  # nodejs_app:
-  #   build:
-  #     dockerfile: node.Dockerfile
-  #   hostname: nodejs_puller
-  #   container_name: nodejs_puller
-  #   depends_on:
-  #     - kafka
-  #     - database
-  #   environment:
-  #     KAFKA_BROKER: kafka:9092
-  #     DATABASE_URL: "postgresql://myuser:mypassword@database:5432/mydb"
-  #     KAFKA_TOPIC: coin-market-data-BTC
-  #   ports:
-  #     - 3000:3000
-  #   networks:
-  #     - kafka-network
+  nodejs_app:
+    build:
+      dockerfile: node.Dockerfile
+    hostname: nodejs_puller
+    container_name: nodejs_puller
+    depends_on:
+      - kafka
+      - postgres_database
+    environment:
+      KAFKA_BROKER: "kafka:9092"
+      KAFKA_TOPIC: "coin-market-data-BTC"
+      KAFKA_USERNAME: "kafka"
+      KAFKA_PASSWORD: "kafkapass"
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: coin_db
+      POSTGRES_HOST: pg_db
+    ports:
+      - 3000:3000
+    networks:
+      - kafka-network
 
   postgres_database:
     image: postgres:14-alpine
@@ -78,8 +82,14 @@ services:
       COIN_MARKET_API_KEY: 1311c9f2-c735-401c-b6d0-cdf34236071d
       URL: https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest
       KAFKA_TOPIC: coin-market-data-BTC
+      KAFKA_USERNAME: "kafka"
+      KAFKA_PASSWORD: "kafkapass"
     networks:
       - kafka-network
 
 volumes:
   db_data:
+
+networks:
+  kafka-network:
+    driver: bridge

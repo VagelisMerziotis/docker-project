@@ -1,13 +1,10 @@
-FROM node:latest-slim
-USER root
+FROM node:lts-bookworm
 
-RUN mkdir app/
 WORKDIR /app
 
-COPY ./lib/docker-pull/* /app/
-RUN chmod +x /app/
+COPY package.json /app
+RUN npm i 
 
-RUN npm init -y
-RUN npm install --no-cache -r requirements.txt
+COPY ./lib/docker-pull/pull.js /app
 
-CMD ["node", "/app/pull.js"]
+CMD ["node", "pull.js"]

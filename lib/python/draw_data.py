@@ -4,11 +4,11 @@ from utilities import draw_data, send_to_kafka
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+
 load_dotenv()
 
 if __name__ == "__main__":
-    # Constants
+
     KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
     KAFKA_TOPIC = os.environ.get('KAFKA_TOPIC')
     URL = os.environ.get('URL')
